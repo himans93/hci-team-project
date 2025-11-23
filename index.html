@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chore Board Prototype</title>
+  <style>
+    :root {
+      --bg-board: #f5f8fb;
+      --bg-card: #ffffff;
+      --bg-person: #f3f7fb;
+      --accent-blue: #4fb5ff;
+      --accent-orange: #ff9757;
+      --accent-teal: #5fd3c4;
+      --accent-pink: #ff7aa8;
+      --late-text: #ff6a6a;
+      --text-main: #1c2936;
+      --text-muted: #7c8a9c;
+      --border-soft: #e0e6f0;
+      --shadow-soft: 0 18px 40px rgba(39, 79, 117, 0.18);
+      --radius-lg: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #e0f2ff, #f8f9ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text-main);
+    }
+
+    .board {
+      width: 1000px;
+      max-width: 95vw;
+      background: var(--bg-board);
+      border-radius: 40px;
+      box-shadow: var(--shadow-soft);
+      padding: 24px 32px 32px;
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .hide-completed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hide-completed input {
+      accent-color: var(--accent-blue);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .date-label {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .nav-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--bg-card);
+      font-size: 16px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .people-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .person-card {
+      background: var(--bg-person);
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .person-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      margin-right: 12px;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .avatar.ciara   { background: var(--accent-blue); }
+    .avatar.matias  { background: var(--accent-orange); }
+    .avatar.colt    { background: var(--accent-teal); }
+    .avatar.melia   { background: var(--accent-pink); }
+
+    .person-name {
+      font-weight: 600;
+      font-size: 17px;
+      margin-bottom: 2px;
+    }
+
+    .person-progress {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      border: 1px solid transparent;
+      transition: border 0.15s ease, opacity 0.15s ease, transform 0.12s ease;
+    }
+
+    .task-card:hover {
+      border-color: var(--border-soft);
+      transform: translateY(-1px);
+    }
+
+    .task-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .task-title {
+      font-weight: 500;
+    }
+
+    .task-meta {
+      font-size: 11px;
+      color: var(--late-text);
+    }
+
+    .task-meta.weekly {
+      color: var(--text-muted);
+    }
+
+    .task-toggle {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      border-radius: 999px;
+      background: #dde5f0;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .task-toggle input {
+      display: none;
+    }
+
+    .task-toggle-pill {
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.18s ease;
+    }
+
+    .task-toggle input:checked + .task-toggle-pill {
+      transform: translateX(12px);
+    }
+
+    .task-card.completed {
+      opacity: 0.55;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <header class="board-header">
+      <label class="hide-completed">
+        <input type="checkbox" id="hideCompleted" />
+        <span>Hide completed</span>
+      </label>
+      <div class="date-nav">
+        <div class="nav-btn" aria-label="Previous day">&#8249;</div>
+        <span class="date-label">Today</span>
+        <div class="nav-btn" aria-label="Next day">&#8250;</div>
+      </div>
+    </header>
+
+    <section class="people-grid">
+      <!-- Person 1 -->
+      <article class="person-card" data-person="ciara">
+        <div class="person-header">
+          <div class="avatar ciara">A</div>
+          <div>
+            <div class="person-name">Alex</div>
+            <div class="person-progress">
+              <span class="completed-count">0</span>/<span class="total-count">3</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-list">
+          <div class="task-card late">
+            <div class="task-main">
+              <span class="task-title">Clean kitchen</span>
+              <span class="task-meta">Overdue · 2 days</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+          <div class="task-card late">
+            <div class="task-main">
+              <span class="task-title">Wipe counters & stove</span>
+              <span class="task-meta">Overdue · 1 day</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+          <div class="task-card">
+            <div class="task-main">
+              <span class="task-title">Unload dishwasher</span>
+              <span class="task-meta weekly">Tonight · After dinner</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+        </div>
+      </article>
+
+      <!-- Person 2 -->
+      <article class="person-card" data-person="matias">
+        <div class="person-header">
+          <div class="avatar matias">S</div>
+          <div>
+            <div class="person-name">Sam</div>
+            <div class="person-progress">
+              <span class="completed-count">0</span>/<span class="total-count">2</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-list">
+          <div class="task-card">
+            <div class="task-main">
+              <span class="task-title">Cook dinner</span>
+              <span class="task-meta weekly">Due · Today 7 pm</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+          <div class="task-card late">
+            <div class="task-main">
+              <span class="task-title">Take out trash & recycling</span>
+              <span class="task-meta">Overdue · 1 day</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+        </div>
+      </article>
+
+      <!-- Person 3 -->
+      <article class="person-card" data-person="colt">
+        <div class="person-header">
+          <div class="avatar colt">J</div>
+          <div>
+            <div class="person-name">Jamie</div>
+            <div class="person-progress">
+              <span class="completed-count">0</span>/<span class="total-count">1</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-list">
+          <div class="task-card">
+            <div class="task-main">
+              <span class="task-title">Vacuum living room</span>
+              <span class="task-meta weekly">Weekly · Sundays</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+        </div>
+      </article>
+
+      <!-- Person 4 -->
+      <article class="person-card" data-person="melia">
+        <div class="person-header">
+          <div class="avatar melia">R</div>
+          <div>
+            <div class="person-name">Riya</div>
+            <div class="person-progress">
+              <span class="completed-count">0</span>/<span class="total-count">3</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-list">
+          <div class="task-card">
+            <div class="task-main">
+              <span class="task-title">Do laundry</span>
+              <span class="task-meta weekly">Every Saturday</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+          <div class="task-card late">
+            <div class="task-main">
+              <span class="task-title">Clean bathroom</span>
+              <span class="task-meta">Overdue · 3 days</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+          <div class="task-card">
+            <div class="task-main">
+              <span class="task-title">Review group project notes</span>
+              <span class="task-meta weekly">Due · Tomorrow</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    function updateProgress(personCard) {
+      const tasks = personCard.querySelectorAll(".task-card");
+      const completed = personCard.querySelectorAll(".task-card.completed").length;
+      const completedSpan = personCard.querySelector(".completed-count");
+      const totalSpan = personCard.querySelector(".total-count");
+      if (completedSpan && totalSpan) {
+        completedSpan.textContent = completed;
+        totalSpan.textContent = tasks.length;
+      }
+    }
+
+    function applyHideCompleted() {
+      const hide = document.getElementById("hideCompleted").checked;
+      document.querySelectorAll(".task-card.completed").forEach(card => {
+        card.style.display = hide ? "none" : "";
+      });
+    }
+
+    document.querySelectorAll(".task-toggle input").forEach(input => {
+      input.addEventListener("change", e => {
+        const taskCard = e.target.closest(".task-card");
+        if (!taskCard) return;
+        taskCard.classList.toggle("completed", e.target.checked);
+
+        const personCard = taskCard.closest(".person-card");
+        if (personCard) updateProgress(personCard);
+
+        applyHideCompleted();
+      });
+    });
+
+    document.getElementById("hideCompleted").addEventListener("change", applyHideCompleted);
+
+    document.querySelectorAll(".person-card").forEach(updateProgress);
+  </script>
+</body>
+</html>
+
+
