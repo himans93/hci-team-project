@@ -48,7 +48,6 @@
       transition: background 0.25s ease, transform 0.25s ease;
     }
 
-    /* "Loud" celebration flash on board */
     .board.celebrate {
       animation: board-flash 0.8s ease-out;
     }
@@ -70,8 +69,6 @@
         transform: scale(1);
       }
     }
-
-    /* Top header */
 
     .board-header {
       display: flex;
@@ -123,12 +120,19 @@
       user-select: none;
     }
 
-    /* Room tabs */
+    /* Room tabs + add-room button */
+
+    .rooms-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
 
     .room-tabs {
       display: inline-flex;
       gap: 8px;
-      margin-bottom: 18px;
       background: rgba(255,255,255,0.6);
       padding: 4px;
       border-radius: 999px;
@@ -153,6 +157,24 @@
       box-shadow: 0 6px 16px rgba(39, 79, 117, 0.18);
     }
 
+    .add-room-btn {
+      border-radius: 999px;
+      border: 1px dashed var(--accent-blue);
+      background: rgba(79,181,255,0.07);
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--accent-blue);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .add-room-btn span.icon {
+      font-size: 14px;
+    }
+
     .room-panel {
       display: none;
     }
@@ -160,8 +182,6 @@
     .room-panel.active {
       display: block;
     }
-
-    /* People grid + cards */
 
     .people-grid {
       display: grid;
@@ -262,7 +282,6 @@
       color: var(--text-muted);
     }
 
-    /* "Loud" pulse on card when completing */
     .task-card.celebrate-pulse {
       animation: card-pulse 0.5s ease-out;
       border-color: #7ed47b;
@@ -283,8 +302,6 @@
       }
     }
 
-    /* toggle slider */
-
     .task-toggle {
       position: relative;
       width: 32px;
@@ -297,7 +314,7 @@
     }
 
     .task-toggle.on {
-      background: #7ed47b;      /* GREEN when completed */
+      background: #7ed47b;
       box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
     }
 
@@ -366,7 +383,7 @@
       }
     }
 
-    /* Toast message */
+    /* Toast */
 
     .toast {
       position: absolute;
@@ -406,6 +423,102 @@
         transform: translate(-50%, -6px) scale(0.96);
       }
     }
+
+    /* Template modal */
+
+    .template-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 16, 41, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+    }
+
+    .template-overlay.open {
+      display: flex;
+    }
+
+    .template-modal {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 18px 20px 16px;
+      width: 340px;
+      max-width: 90vw;
+      box-shadow: 0 16px 40px rgba(21, 48, 94, 0.4);
+      font-size: 13px;
+    }
+
+    .template-modal h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .template-modal p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .template-section {
+      margin-bottom: 10px;
+    }
+
+    .template-section label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .template-modal select,
+    .template-modal input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      font-size: 13px;
+    }
+
+    .role-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font-size: 12px;
+    }
+
+    .role-checkboxes label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .template-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #eef1f7;
+      color: var(--text-main);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
   </style>
 </head>
 <body>
@@ -422,11 +535,16 @@
       </div>
     </header>
 
-    <!-- Tabs for rooms -->
-    <div class="room-tabs" role="tablist">
-      <button class="room-tab active" data-room="living">Living Room</button>
-      <button class="room-tab" data-room="kitchen">Kitchen</button>
-      <button class="room-tab" data-room="patio">Patio</button>
+    <!-- tabs + add-room -->
+    <div class="rooms-bar">
+      <div class="room-tabs" role="tablist" id="roomTabs">
+        <button class="room-tab active" data-room="living">Living Room</button>
+        <button class="room-tab" data-room="kitchen">Kitchen</button>
+        <button class="room-tab" data-room="patio">Patio</button>
+      </div>
+      <button class="add-room-btn" id="addRoomBtn">
+        <span class="icon">＋</span><span>New room from template</span>
+      </button>
     </div>
 
     <!-- LIVING ROOM -->
@@ -855,8 +973,108 @@
     </section>
   </div>
 
+  <!-- Template modal -->
+  <div class="template-overlay" id="templateOverlay">
+    <div class="template-modal">
+      <h2>New room from template</h2>
+      <p>Select a room template and who shares that room. We’ll pre-fill some example chores.</p>
+
+      <div class="template-section">
+        <label for="templateSelect">Room template</label>
+        <select id="templateSelect"></select>
+      </div>
+
+      <div class="template-section">
+        <label for="roomNameInput">Room name (optional)</label>
+        <input type="text" id="roomNameInput" placeholder="e.g., Kids' Bedroom" />
+      </div>
+
+      <div class="template-section">
+        <label>Who does chores in this room?</label>
+        <div class="role-checkboxes" id="roleCheckboxes">
+          <label><input type="checkbox" value="Dad" checked /> Dad</label>
+          <label><input type="checkbox" value="Mom" checked /> Mom</label>
+          <label><input type="checkbox" value="Brother" checked /> Brother</label>
+          <label><input type="checkbox" value="Grandma" /> Grandma</label>
+        </div>
+      </div>
+
+      <div class="template-actions">
+        <button class="btn btn-secondary" id="cancelTemplateBtn">Cancel</button>
+        <button class="btn btn-primary" id="createRoomBtn">Create room</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Update per-person progress text
+    // --- DATA: role config & room templates --------------------
+
+    const ROLE_CONFIG = {
+      Dad:    { avatarClass: "dad",    icon: "👨" },
+      Mom:    { avatarClass: "mom",    icon: "👩" },
+      Brother:{ avatarClass: "brother",icon: "🧑" },
+      Grandma:{ avatarClass: "grandma",icon: "👵" }
+    };
+
+    // simple room templates with example chores
+    const ROOM_TEMPLATES = {
+      "Shared Bedroom": {
+        defaultName: "Shared Bedroom",
+        chores: {
+          Dad: [
+            { title: "Fix loose bed slats", meta: "Monthly", metaClass: "weekly" },
+            { title: "Rotate mattresses", meta: "Every 3 months", metaClass: "weekly" }
+          ],
+          Mom: [
+            { title: "Sort outgrown clothes", meta: "Seasonal", metaClass: "weekly" },
+            { title: "Wash bed sheets", meta: "Weekly · Saturday", metaClass: "weekly" }
+          ],
+          Brother: [
+            { title: "Put toys back in bins", meta: "Nightly", metaClass: "weekly" },
+            { title: "Clear desk before bed", meta: "Every evening", metaClass: "weekly" }
+          ],
+          Grandma: [
+            { title: "Air out blankets", meta: "Weekly", metaClass: "weekly" }
+          ]
+        }
+      },
+      "Guest Bathroom": {
+        defaultName: "Guest Bathroom",
+        chores: {
+          Dad: [
+            { title: "Check towels & soap", meta: "Before guests arrive", metaClass: "weekly" }
+          ],
+          Mom: [
+            { title: "Wipe sink & mirror", meta: "Every 2 days", metaClass: "weekly" },
+            { title: "Refill toiletries basket", meta: "Weekly", metaClass: "weekly" }
+          ],
+          Brother: [
+            { title: "Empty bathroom trash", meta: "Twice a week", metaClass: "weekly" }
+          ],
+          Grandma: [
+            { title: "Fold spare towels", meta: "Monthly", metaClass: "weekly" }
+          ]
+        }
+      },
+      "Homework Corner": {
+        defaultName: "Homework Corner",
+        chores: {
+          Dad: [
+            { title: "Check chargers & cables", meta: "Weekly · Sunday", metaClass: "weekly" }
+          ],
+          Mom: [
+            { title: "Review school papers pile", meta: "Every Friday", metaClass: "weekly" }
+          ],
+          Brother: [
+            { title: "Clear homework desk", meta: "After homework", metaClass: "weekly" },
+            { title: "Return pens & markers", meta: "Nightly", metaClass: "weekly" }
+          ]
+        }
+      }
+    };
+
+    // --- progress & hide-completed -----------------------------
+
     function updateProgress(personCard) {
       const tasks = personCard.querySelectorAll(".task-card");
       const completed = personCard.querySelectorAll(".task-card.completed").length;
@@ -868,7 +1086,6 @@
       }
     }
 
-    // Hide/show completed tasks when global toggle changes
     function applyHideCompleted() {
       const hide = document.getElementById("hideCompleted").checked;
       document.querySelectorAll(".task-card.completed").forEach(card => {
@@ -876,7 +1093,8 @@
       });
     }
 
-    // Toast helper
+    // --- toast & confetti --------------------------------------
+
     function showToast(message) {
       const board = document.querySelector(".board");
       const existing = board.querySelector(".toast");
@@ -892,7 +1110,6 @@
       }, 1400);
     }
 
-    // Lightweight but louder confetti celebration
     function triggerCelebration(taskCard) {
       const colors = ["#4fb5ff", "#ff9757", "#5fd3c4", "#ff7aa8", "#ffd76f"];
       let container = document.getElementById("confetti-container");
@@ -907,7 +1124,6 @@
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
 
-      // more pieces, wider spread
       for (let i = 0; i < 40; i++) {
         const piece = document.createElement("span");
         piece.className = "confetti-piece";
@@ -926,21 +1142,22 @@
         setTimeout(() => piece.remove(), 950);
       }
 
-      // board flash
       const board = document.querySelector(".board");
       board.classList.add("celebrate");
       setTimeout(() => board.classList.remove("celebrate"), 850);
 
-      // pulse the card
       taskCard.classList.add("celebrate-pulse");
       setTimeout(() => taskCard.classList.remove("celebrate-pulse"), 550);
 
-      // toast
       showToast("Chore completed!");
     }
 
-    // Task toggle behavior
-    document.querySelectorAll(".task-toggle input").forEach(input => {
+    // --- task toggle wiring (reusable for dynamically added) ---
+
+    function attachToggleHandler(input) {
+      if (input.dataset.bound === "1") return;
+      input.dataset.bound = "1";
+
       input.addEventListener("change", e => {
         const taskCard = e.target.closest(".task-card");
         if (!taskCard) return;
@@ -948,7 +1165,6 @@
         const isCompleted = e.target.checked;
         taskCard.classList.toggle("completed", isCompleted);
 
-        // turn slider bar green when completed
         const toggle = e.target.closest(".task-toggle");
         if (toggle) {
           toggle.classList.toggle("on", isCompleted);
@@ -958,31 +1174,184 @@
         if (personCard) updateProgress(personCard);
 
         if (isCompleted) {
-          // louder celebration animation
           triggerCelebration(taskCard);
         }
 
         applyHideCompleted();
       });
+    }
+
+    function wireAllToggles() {
+      document.querySelectorAll(".task-toggle input").forEach(attachToggleHandler);
+    }
+
+    // --- room tabs (use event delegation so new tabs work) -----
+
+    document.getElementById("roomTabs").addEventListener("click", e => {
+      const tab = e.target.closest(".room-tab");
+      if (!tab) return;
+      const room = tab.dataset.room;
+
+      document.querySelectorAll(".room-tab").forEach(t =>
+        t.classList.toggle("active", t === tab)
+      );
+      document.querySelectorAll(".room-panel").forEach(panel =>
+        panel.classList.toggle("active", panel.dataset.room === room)
+      );
     });
 
-    // Room tabs
-    document.querySelectorAll(".room-tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        const room = tab.dataset.room;
-        document.querySelectorAll(".room-tab").forEach(t =>
-          t.classList.toggle("active", t === tab)
-        );
-        document.querySelectorAll(".room-panel").forEach(panel =>
-          panel.classList.toggle("active", panel.dataset.room === room)
-        );
-      });
-    });
+    // --- hide-completed listener --------------------------------
 
-    // Hide-completed global listener
     document.getElementById("hideCompleted").addEventListener("change", applyHideCompleted);
 
-    // Initialize progress counts on load
+    // --- template modal logic -----------------------------------
+
+    const overlay = document.getElementById("templateOverlay");
+    const addRoomBtn = document.getElementById("addRoomBtn");
+    const templateSelect = document.getElementById("templateSelect");
+    const roomNameInput = document.getElementById("roomNameInput");
+    const createRoomBtn = document.getElementById("createRoomBtn");
+    const cancelTemplateBtn = document.getElementById("cancelTemplateBtn");
+
+    // populate template select
+    Object.keys(ROOM_TEMPLATES).forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      templateSelect.appendChild(opt);
+    });
+
+    function openTemplateModal() {
+      const firstTemplate = ROOM_TEMPLATES[templateSelect.value] || ROOM_TEMPLATES[Object.keys(ROOM_TEMPLATES)[0]];
+      roomNameInput.value = firstTemplate ? firstTemplate.defaultName : "";
+      overlay.classList.add("open");
+    }
+
+    addRoomBtn.addEventListener("click", openTemplateModal);
+
+    cancelTemplateBtn.addEventListener("click", () => {
+      overlay.classList.remove("open");
+    });
+
+    // click backdrop to close
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) overlay.classList.remove("open");
+    });
+
+    templateSelect.addEventListener("change", () => {
+      const tmpl = ROOM_TEMPLATES[templateSelect.value];
+      if (tmpl && !roomNameInput.value) {
+        roomNameInput.value = tmpl.defaultName;
+      }
+    });
+
+    function createTaskListHTML(chores) {
+      return chores.map(chore => {
+        const cardClass = "task-card" + (chore.late ? " late" : "");
+        const metaClass = chore.metaClass === "weekly" ? "task-meta weekly" : "task-meta";
+        return `
+          <div class="${cardClass}">
+            <div class="task-main">
+              <span class="task-title">${chore.title}</span>
+              <span class="${metaClass}">${chore.meta}</span>
+            </div>
+            <label class="task-toggle">
+              <input type="checkbox" />
+              <span class="task-toggle-pill"></span>
+            </label>
+          </div>`;
+      }).join("");
+    }
+
+    function createPersonCard(roleName, chores) {
+      const config = ROLE_CONFIG[roleName];
+      if (!config) return null;
+
+      const article = document.createElement("article");
+      article.className = "person-card";
+      const tasksHTML = createTaskListHTML(chores);
+
+      article.innerHTML = `
+        <div class="person-header">
+          <div class="avatar ${config.avatarClass}" aria-hidden="true">${config.icon}</div>
+          <div>
+            <div class="person-name">${roleName}</div>
+            <div class="person-progress">
+              <span class="completed-count">0</span>/<span class="total-count">${chores.length}</span> tasks
+            </div>
+          </div>
+        </div>
+        <div class="task-list">
+          ${tasksHTML}
+        </div>
+      `;
+      return article;
+    }
+
+    function createRoomFromTemplate() {
+      const templateName = templateSelect.value;
+      const tmpl = ROOM_TEMPLATES[templateName];
+      if (!tmpl) return;
+
+      const chosenName = roomNameInput.value.trim() || tmpl.defaultName;
+      const slugBase = chosenName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const slug = slugBase + "-" + Date.now().toString(36);
+
+      // gather checked roles
+      const roles = Array.from(document.querySelectorAll("#roleCheckboxes input:checked"))
+        .map(cb => cb.value);
+
+      if (roles.length === 0) {
+        alert("Select at least one family member for this room.");
+        return;
+      }
+
+      // create tab
+      const tab = document.createElement("button");
+      tab.className = "room-tab";
+      tab.dataset.room = slug;
+      tab.textContent = chosenName;
+      document.getElementById("roomTabs").appendChild(tab);
+
+      // create panel with people cards
+      const panel = document.createElement("section");
+      panel.className = "room-panel";
+      panel.dataset.room = slug;
+
+      const grid = document.createElement("div");
+      grid.className = "people-grid";
+
+      roles.forEach(roleName => {
+        const chores = (tmpl.chores[roleName] || [
+          { title: "Example chore for " + roleName, meta: "Weekly", metaClass: "weekly" }
+        ]);
+        const card = createPersonCard(roleName, chores);
+        if (card) grid.appendChild(card);
+      });
+
+      panel.appendChild(grid);
+      document.querySelector(".board").appendChild(panel);
+
+      // make new tab active
+      document.querySelectorAll(".room-tab").forEach(t =>
+        t.classList.toggle("active", t === tab)
+      );
+      document.querySelectorAll(".room-panel").forEach(p =>
+        p.classList.toggle("active", p.dataset.room === slug)
+      );
+
+      // wire toggles + progress in new room
+      wireAllToggles();
+      panel.querySelectorAll(".person-card").forEach(updateProgress);
+
+      overlay.classList.remove("open");
+    }
+
+    createRoomBtn.addEventListener("click", createRoomFromTemplate);
+
+    // --- initial wiring ----------------------------------------
+
+    wireAllToggles();
     document.querySelectorAll(".person-card").forEach(updateProgress);
   </script>
 </body>
