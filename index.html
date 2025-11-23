@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chore Board Prototype</title>
+  <title>Chore Board Prototype – Rooms & Roles</title>
   <style>
     :root {
       --bg-board: #f5f8fb;
@@ -43,13 +43,41 @@
       border-radius: 40px;
       box-shadow: var(--shadow-soft);
       padding: 24px 32px 32px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s ease, transform 0.25s ease;
     }
+
+    /* "Loud" celebration flash on board */
+    .board.celebrate {
+      animation: board-flash 0.8s ease-out;
+    }
+
+    @keyframes board-flash {
+      0% {
+        background: var(--bg-board);
+        transform: scale(1);
+      }
+      25% {
+        background: #fff7e0;
+        transform: scale(1.01);
+      }
+      55% {
+        background: #f2ffeb;
+      }
+      100% {
+        background: var(--bg-board);
+        transform: scale(1);
+      }
+    }
+
+    /* Top header */
 
     .board-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       font-size: 14px;
       color: var(--text-muted);
     }
@@ -95,6 +123,46 @@
       user-select: none;
     }
 
+    /* Room tabs */
+
+    .room-tabs {
+      display: inline-flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      background: rgba(255,255,255,0.6);
+      padding: 4px;
+      border-radius: 999px;
+    }
+
+    .room-tab {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, box-shadow 0.15s ease,
+                  color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .room-tab.active {
+      background: #ffffff;
+      color: var(--text-main);
+      border-color: var(--border-soft);
+      box-shadow: 0 6px 16px rgba(39, 79, 117, 0.18);
+    }
+
+    .room-panel {
+      display: none;
+    }
+
+    .room-panel.active {
+      display: block;
+    }
+
+    /* People grid + cards */
+
     .people-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -129,16 +197,15 @@
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-weight: 600;
+      font-size: 18px;
       margin-right: 12px;
       flex-shrink: 0;
-      font-size: 16px;
     }
 
-    .avatar.ciara   { background: var(--accent-blue); }
-    .avatar.matias  { background: var(--accent-orange); }
-    .avatar.colt    { background: var(--accent-teal); }
-    .avatar.melia   { background: var(--accent-pink); }
+    .avatar.dad     { background: var(--accent-blue); }
+    .avatar.mom     { background: var(--accent-orange); }
+    .avatar.brother { background: var(--accent-teal); }
+    .avatar.grandma { background: var(--accent-pink); }
 
     .person-name {
       font-weight: 600;
@@ -195,6 +262,29 @@
       color: var(--text-muted);
     }
 
+    /* "Loud" pulse on card when completing */
+    .task-card.celebrate-pulse {
+      animation: card-pulse 0.5s ease-out;
+      border-color: #7ed47b;
+    }
+
+    @keyframes card-pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(126, 212, 123, 0);
+      }
+      40% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 8px rgba(126, 212, 123, 0.4);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(126, 212, 123, 0);
+      }
+    }
+
+    /* toggle slider */
+
     .task-toggle {
       position: relative;
       width: 32px;
@@ -203,6 +293,12 @@
       background: #dde5f0;
       flex-shrink: 0;
       cursor: pointer;
+      transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .task-toggle.on {
+      background: #7ed47b;      /* GREEN when completed */
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
     }
 
     .task-toggle input {
@@ -217,7 +313,7 @@
       height: 14px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
       transition: transform 0.18s ease;
     }
 
@@ -231,6 +327,84 @@
 
     .task-card.completed .task-title {
       text-decoration: line-through;
+    }
+
+    /* Celebration confetti */
+
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 999;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: confetti-pop 0.9s ease-out forwards;
+    }
+
+    @keyframes confetti-pop {
+      0% {
+        transform: translate(0,0) scale(0.4) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--confetti-translateX), var(--confetti-translateY))
+                   scale(1) rotate(var(--confetti-rotation));
+        opacity: 0;
+      }
+    }
+
+    /* Toast message */
+
+    .toast {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 30, 42, 0.98);
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 10px 25px rgba(33, 60, 102, 0.45);
+      opacity: 0;
+      animation: toast-pop 1.4s ease-out forwards;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes toast-pop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -8px) scale(0.9);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+      70% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -6px) scale(0.96);
+      }
     }
   </style>
 </head>
@@ -248,160 +422,441 @@
       </div>
     </header>
 
-    <section class="people-grid">
-      <!-- Person 1 -->
-      <article class="person-card" data-person="ciara">
-        <div class="person-header">
-          <div class="avatar ciara">A</div>
-          <div>
-            <div class="person-name">Alex</div>
-            <div class="person-progress">
-              <span class="completed-count">0</span>/<span class="total-count">3</span>
-            </div>
-          </div>
-        </div>
-        <div class="task-list">
-          <div class="task-card late">
-            <div class="task-main">
-              <span class="task-title">Clean kitchen</span>
-              <span class="task-meta">Overdue · 2 days</span>
-            </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
-          </div>
-          <div class="task-card late">
-            <div class="task-main">
-              <span class="task-title">Wipe counters & stove</span>
-              <span class="task-meta">Overdue · 1 day</span>
-            </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
-          </div>
-          <div class="task-card">
-            <div class="task-main">
-              <span class="task-title">Unload dishwasher</span>
-              <span class="task-meta weekly">Tonight · After dinner</span>
-            </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
-          </div>
-        </div>
-      </article>
+    <!-- Tabs for rooms -->
+    <div class="room-tabs" role="tablist">
+      <button class="room-tab active" data-room="living">Living Room</button>
+      <button class="room-tab" data-room="kitchen">Kitchen</button>
+      <button class="room-tab" data-room="patio">Patio</button>
+    </div>
 
-      <!-- Person 2 -->
-      <article class="person-card" data-person="matias">
-        <div class="person-header">
-          <div class="avatar matias">S</div>
-          <div>
-            <div class="person-name">Sam</div>
-            <div class="person-progress">
-              <span class="completed-count">0</span>/<span class="total-count">2</span>
+    <!-- LIVING ROOM -->
+    <section class="room-panel active" data-room="living">
+      <div class="people-grid">
+        <!-- Dad -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar dad" aria-hidden="true">👨</div>
+            <div>
+              <div class="person-name">Dad</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
             </div>
           </div>
-        </div>
-        <div class="task-list">
-          <div class="task-card">
-            <div class="task-main">
-              <span class="task-title">Cook dinner</span>
-              <span class="task-meta weekly">Due · Today 7 pm</span>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Vacuum living room</span>
+                <span class="task-meta weekly">Weekly · Sunday</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
-          </div>
-          <div class="task-card late">
-            <div class="task-main">
-              <span class="task-title">Take out trash & recycling</span>
-              <span class="task-meta">Overdue · 1 day</span>
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Dust TV console</span>
+                <span class="task-meta">Overdue · 2 days</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <!-- Person 3 -->
-      <article class="person-card" data-person="colt">
-        <div class="person-header">
-          <div class="avatar colt">J</div>
-          <div>
-            <div class="person-name">Jamie</div>
-            <div class="person-progress">
-              <span class="completed-count">0</span>/<span class="total-count">1</span>
+        <!-- Mom -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar mom" aria-hidden="true">👩</div>
+            <div>
+              <div class="person-name">Mom</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
             </div>
           </div>
-        </div>
-        <div class="task-list">
-          <div class="task-card">
-            <div class="task-main">
-              <span class="task-title">Vacuum living room</span>
-              <span class="task-meta weekly">Weekly · Sundays</span>
+          <div class="task-list">
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Declutter coffee table</span>
+                <span class="task-meta">Overdue · 1 day</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Fold blankets & throws</span>
+                <span class="task-meta weekly">Every evening</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <!-- Person 4 -->
-      <article class="person-card" data-person="melia">
-        <div class="person-header">
-          <div class="avatar melia">R</div>
-          <div>
-            <div class="person-name">Riya</div>
-            <div class="person-progress">
-              <span class="completed-count">0</span>/<span class="total-count">3</span>
+        <!-- Brother -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar brother" aria-hidden="true">🧑</div>
+            <div>
+              <div class="person-name">Brother</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
             </div>
           </div>
-        </div>
-        <div class="task-list">
-          <div class="task-card">
-            <div class="task-main">
-              <span class="task-title">Do laundry</span>
-              <span class="task-meta weekly">Every Saturday</span>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Collect cups & snack bowls</span>
+                <span class="task-meta weekly">Nightly</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
-          </div>
-          <div class="task-card late">
-            <div class="task-main">
-              <span class="task-title">Clean bathroom</span>
-              <span class="task-meta">Overdue · 3 days</span>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Tidy game controllers</span>
+                <span class="task-meta weekly">After gaming session</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
           </div>
-          <div class="task-card">
-            <div class="task-main">
-              <span class="task-title">Review group project notes</span>
-              <span class="task-meta weekly">Due · Tomorrow</span>
+        </article>
+
+        <!-- Grandma -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar grandma" aria-hidden="true">👵</div>
+            <div>
+              <div class="person-name">Grandma</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
             </div>
-            <label class="task-toggle">
-              <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
-            </label>
           </div>
-        </div>
-      </article>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Water living room plants</span>
+                <span class="task-meta weekly">Twice a week</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Arrange cushions on sofa</span>
+                <span class="task-meta">Overdue · 1 day</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- KITCHEN -->
+    <section class="room-panel" data-room="kitchen">
+      <div class="people-grid">
+        <!-- Dad -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar dad" aria-hidden="true">👨</div>
+            <div>
+              <div class="person-name">Dad</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Take out trash & recycling</span>
+                <span class="task-meta">Overdue · 1 day</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Mop kitchen floor</span>
+                <span class="task-meta weekly">Every Saturday</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Mom -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar mom" aria-hidden="true">👩</div>
+            <div>
+              <div class="person-name">Mom</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Cook dinner</span>
+                <span class="task-meta weekly">Today · 7 pm</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Load dishwasher</span>
+                <span class="task-meta weekly">After dinner</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Brother -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar brother" aria-hidden="true">🧑</div>
+            <div>
+              <div class="person-name">Brother</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Clear dining table</span>
+                <span class="task-meta weekly">Nightly</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Wipe kitchen counters</span>
+                <span class="task-meta weekly">After meals</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Grandma -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar grandma" aria-hidden="true">👵</div>
+            <div>
+              <div class="person-name">Grandma</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Dry dishes</span>
+                <span class="task-meta weekly">After dinner</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Organize pantry shelf</span>
+                <span class="task-meta">Overdue · 3 days</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PATIO -->
+    <section class="room-panel" data-room="patio">
+      <div class="people-grid">
+        <!-- Dad -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar dad" aria-hidden="true">👨</div>
+            <div>
+              <div class="person-name">Dad</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Sweep patio</span>
+                <span class="task-meta weekly">Weekly · Saturday</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Clean grill</span>
+                <span class="task-meta weekly">After BBQ</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Mom -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar mom" aria-hidden="true">👩</div>
+            <div>
+              <div class="person-name">Mom</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Shake out doormat</span>
+                <span class="task-meta weekly">Every weekend</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Water outdoor plants</span>
+                <span class="task-meta weekly">3× per week</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Brother -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar brother" aria-hidden="true">🧑</div>
+            <div>
+              <div class="person-name">Brother</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">1</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Put away sports gear</span>
+                <span class="task-meta weekly">After practice</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <!-- Grandma -->
+        <article class="person-card">
+          <div class="person-header">
+            <div class="avatar grandma" aria-hidden="true">👵</div>
+            <div>
+              <div class="person-name">Grandma</div>
+              <div class="person-progress">
+                <span class="completed-count">0</span>/<span class="total-count">2</span> tasks
+              </div>
+            </div>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-main">
+                <span class="task-title">Wipe patio table & chairs</span>
+                <span class="task-meta weekly">Before guests arrive</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+            <div class="task-card late">
+              <div class="task-main">
+                <span class="task-title">Fold outdoor blankets</span>
+                <span class="task-meta">Overdue · 1 day</span>
+              </div>
+              <label class="task-toggle">
+                <input type="checkbox" />
+                <span class="task-toggle-pill"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+      </div>
     </section>
   </div>
 
   <script>
+    // Update per-person progress text
     function updateProgress(personCard) {
       const tasks = personCard.querySelectorAll(".task-card");
       const completed = personCard.querySelectorAll(".task-card.completed").length;
@@ -413,6 +868,7 @@
       }
     }
 
+    // Hide/show completed tasks when global toggle changes
     function applyHideCompleted() {
       const hide = document.getElementById("hideCompleted").checked;
       document.querySelectorAll(".task-card.completed").forEach(card => {
@@ -420,24 +876,114 @@
       });
     }
 
+    // Toast helper
+    function showToast(message) {
+      const board = document.querySelector(".board");
+      const existing = board.querySelector(".toast");
+      if (existing) existing.remove();
+
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.innerHTML = `<span>🎉</span><span>${message}</span>`;
+      board.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 1400);
+    }
+
+    // Lightweight but louder confetti celebration
+    function triggerCelebration(taskCard) {
+      const colors = ["#4fb5ff", "#ff9757", "#5fd3c4", "#ff7aa8", "#ffd76f"];
+      let container = document.getElementById("confetti-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "confetti-container";
+        container.className = "confetti-container";
+        document.body.appendChild(container);
+      }
+
+      const rect = taskCard.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+
+      // more pieces, wider spread
+      for (let i = 0; i < 40; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        const dx = (Math.random() - 0.5) * 220;
+        const dy = - (Math.random() * 140 + 40);
+        const rot = Math.random() * 360 + "deg";
+
+        piece.style.left = originX + "px";
+        piece.style.top = originY + "px";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty("--confetti-translateX", dx + "px");
+        piece.style.setProperty("--confetti-translateY", dy + "px");
+        piece.style.setProperty("--confetti-rotation", rot);
+
+        container.appendChild(piece);
+        setTimeout(() => piece.remove(), 950);
+      }
+
+      // board flash
+      const board = document.querySelector(".board");
+      board.classList.add("celebrate");
+      setTimeout(() => board.classList.remove("celebrate"), 850);
+
+      // pulse the card
+      taskCard.classList.add("celebrate-pulse");
+      setTimeout(() => taskCard.classList.remove("celebrate-pulse"), 550);
+
+      // toast
+      showToast("Chore completed!");
+    }
+
+    // Task toggle behavior
     document.querySelectorAll(".task-toggle input").forEach(input => {
       input.addEventListener("change", e => {
         const taskCard = e.target.closest(".task-card");
         if (!taskCard) return;
-        taskCard.classList.toggle("completed", e.target.checked);
+
+        const isCompleted = e.target.checked;
+        taskCard.classList.toggle("completed", isCompleted);
+
+        // turn slider bar green when completed
+        const toggle = e.target.closest(".task-toggle");
+        if (toggle) {
+          toggle.classList.toggle("on", isCompleted);
+        }
 
         const personCard = taskCard.closest(".person-card");
         if (personCard) updateProgress(personCard);
+
+        if (isCompleted) {
+          // louder celebration animation
+          triggerCelebration(taskCard);
+        }
 
         applyHideCompleted();
       });
     });
 
+    // Room tabs
+    document.querySelectorAll(".room-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const room = tab.dataset.room;
+        document.querySelectorAll(".room-tab").forEach(t =>
+          t.classList.toggle("active", t === tab)
+        );
+        document.querySelectorAll(".room-panel").forEach(panel =>
+          panel.classList.toggle("active", panel.dataset.room === room)
+        );
+      });
+    });
+
+    // Hide-completed global listener
     document.getElementById("hideCompleted").addEventListener("change", applyHideCompleted);
 
+    // Initialize progress counts on load
     document.querySelectorAll(".person-card").forEach(updateProgress);
   </script>
 </body>
 </html>
-
-
