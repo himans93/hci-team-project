@@ -302,20 +302,25 @@
       }
     }
 
+    /* NEW: checkmark instead of slider */
+
     .task-toggle {
-      position: relative;
-      width: 32px;
-      height: 18px;
-      border-radius: 999px;
-      background: #dde5f0;
-      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #ff6a6a;          /* red border when not done */
+      background: #ffe5e5;                /* light red background */
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: background 0.18s ease, box-shadow 0.18s ease;
+      flex-shrink: 0;
+      transition: background 0.18s ease, border-color 0.18s ease;
     }
 
     .task-toggle.on {
-      background: #7ed47b;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+      background: #7ed47b;               /* green when done */
+      border-color: #7ed47b;
     }
 
     .task-toggle input {
@@ -323,19 +328,15 @@
     }
 
     .task-toggle-pill {
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-      transition: transform 0.18s ease;
+      font-size: 14px;
+      color: #ffffff;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
     }
 
     .task-toggle input:checked + .task-toggle-pill {
-      transform: translateX(12px);
+      opacity: 1;                        /* show ✓ when checked */
     }
 
     .task-card.completed {
@@ -518,7 +519,6 @@
       background: var(--accent-blue);
       color: #fff;
     }
-
   </style>
 </head>
 <body>
@@ -569,7 +569,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card late">
@@ -579,7 +579,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -604,7 +604,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -614,7 +614,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -639,7 +639,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -649,7 +649,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -674,7 +674,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card late">
@@ -684,7 +684,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -714,7 +714,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -724,7 +724,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -749,7 +749,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -759,7 +759,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -784,7 +784,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -794,7 +794,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -819,7 +819,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card late">
@@ -829,7 +829,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -859,7 +859,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -869,7 +869,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -894,7 +894,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card">
@@ -904,7 +904,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -929,7 +929,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -954,7 +954,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
             <div class="task-card late">
@@ -964,7 +964,7 @@
               </div>
               <label class="task-toggle">
                 <input type="checkbox" />
-                <span class="task-toggle-pill"></span>
+                <span class="task-toggle-pill">✓</span>
               </label>
             </div>
           </div>
@@ -1016,7 +1016,6 @@
       Grandma:{ avatarClass: "grandma",icon: "👵" }
     };
 
-    // simple room templates with example chores
     const ROOM_TEMPLATES = {
       "Shared Bedroom": {
         defaultName: "Shared Bedroom",
@@ -1185,7 +1184,7 @@
       document.querySelectorAll(".task-toggle input").forEach(attachToggleHandler);
     }
 
-    // --- room tabs (use event delegation so new tabs work) -----
+    // --- room tabs (event delegation) --------------------------
 
     document.getElementById("roomTabs").addEventListener("click", e => {
       const tab = e.target.closest(".room-tab");
@@ -1200,11 +1199,11 @@
       );
     });
 
-    // --- hide-completed listener --------------------------------
+    // --- hide-completed listener -------------------------------
 
     document.getElementById("hideCompleted").addEventListener("change", applyHideCompleted);
 
-    // --- template modal logic -----------------------------------
+    // --- template modal logic ----------------------------------
 
     const overlay = document.getElementById("templateOverlay");
     const addRoomBtn = document.getElementById("addRoomBtn");
@@ -1213,7 +1212,6 @@
     const createRoomBtn = document.getElementById("createRoomBtn");
     const cancelTemplateBtn = document.getElementById("cancelTemplateBtn");
 
-    // populate template select
     Object.keys(ROOM_TEMPLATES).forEach(name => {
       const opt = document.createElement("option");
       opt.value = name;
@@ -1233,7 +1231,6 @@
       overlay.classList.remove("open");
     });
 
-    // click backdrop to close
     overlay.addEventListener("click", e => {
       if (e.target === overlay) overlay.classList.remove("open");
     });
@@ -1257,7 +1254,7 @@
             </div>
             <label class="task-toggle">
               <input type="checkbox" />
-              <span class="task-toggle-pill"></span>
+              <span class="task-toggle-pill">✓</span>
             </label>
           </div>`;
       }).join("");
@@ -1297,7 +1294,6 @@
       const slugBase = chosenName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const slug = slugBase + "-" + Date.now().toString(36);
 
-      // gather checked roles
       const roles = Array.from(document.querySelectorAll("#roleCheckboxes input:checked"))
         .map(cb => cb.value);
 
@@ -1306,14 +1302,12 @@
         return;
       }
 
-      // create tab
       const tab = document.createElement("button");
       tab.className = "room-tab";
       tab.dataset.room = slug;
       tab.textContent = chosenName;
       document.getElementById("roomTabs").appendChild(tab);
 
-      // create panel with people cards
       const panel = document.createElement("section");
       panel.className = "room-panel";
       panel.dataset.room = slug;
@@ -1332,7 +1326,6 @@
       panel.appendChild(grid);
       document.querySelector(".board").appendChild(panel);
 
-      // make new tab active
       document.querySelectorAll(".room-tab").forEach(t =>
         t.classList.toggle("active", t === tab)
       );
@@ -1340,7 +1333,6 @@
         p.classList.toggle("active", p.dataset.room === slug)
       );
 
-      // wire toggles + progress in new room
       wireAllToggles();
       panel.querySelectorAll(".person-card").forEach(updateProgress);
 
